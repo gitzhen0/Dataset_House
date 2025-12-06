@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dataset House - Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+<header>
+    <div class="header-inner">
+        <div class="logo">DATASET HOUSE</div>
+        <nav>
+            <a href="{{ url_for('login') }}" class="active">Login</a>
+            <a href="{{ url_for('register') }}">Register</a>
+        </nav>
+    </div>
+</header>
+
+<main class="main login-card">
+    <h1>User Login</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="message {{ category }}" style="display: block;">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('login') }}">
+        <div class="form-grid">
+            <label for="email">Email</label>
+            <input id="email" type="email" name="email" placeholder="Enter your email" required>
+
+            <label for="password">Password</label>
+            <input id="password" type="password" name="password" placeholder="Enter your password" required>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">Login</button>
+            <a href="{{ url_for('register') }}" class="btn btn-secondary">Register</a>
+        </div>
+
+        <p class="text-muted" style="margin-top: 16px;">
+            New here? Click <a href="{{ url_for('register') }}">Register</a> to create an account.
+        </p>
+    </form>
+</main>
+
+</body>
+</html>

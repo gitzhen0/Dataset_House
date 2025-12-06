@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dataset House - Create Dataset</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+<header>
+    <div class="header-inner">
+        <div class="logo">DATASET HOUSE</div>
+        <nav>
+            <a href="{{ url_for('dataset_list') }}">Datasets</a>
+            <a href="{{ url_for('dataset_create') }}" class="active">Create</a>
+            <a href="#">Query</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </div>
+</header>
+
+<main class="main">
+    <h1>Create Dataset</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="message {{ category }}" style="display: block;">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('dataset_create') }}" enctype="multipart/form-data">
+        <div class="form-grid">
+            <label for="ds-name">Dataset Name</label>
+            <input id="ds-name" type="text" name="name" placeholder="e.g. NYC Taxi Trips" required>
+
+            <label for="ds-table">Table Name (SQL)</label>
+            <input id="ds-table" type="text" name="table_name" placeholder="e.g. nyc_taxi_2025" required>
+            <span class="field-note">Use letters, numbers and underscores only. This will be the SQL table name.</span>
+
+            <label for="ds-desc">Description</label>
+            <textarea id="ds-desc" name="description" placeholder="Short description of the dataset..."></textarea>
+
+            <label for="ds-tags">Tags</label>
+            <input id="ds-tags" type="text" name="tags" placeholder="e.g. transport, nyc">
+
+            <label for="ds-file">CSV/TXT File</label>
+            <input id="ds-file" type="file" name="file" accept=".csv, .txt" required>
+            <span class="field-note">Upload a .csv or .txt file (comma separated).</span>
+
+            <label for="ds-public">Visibility</label>
+            <select id="ds-public" name="visibility">
+                <option value="public">Public (all users)</option>
+                <option value="private">Private (only me)</option>
+            </select>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">Save Dataset</button>
+            <a href="{{ url_for('dataset_list') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</main>
+
+</body>
+</html>

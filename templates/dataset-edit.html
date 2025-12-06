@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dataset House - Edit Dataset</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+<header>
+    <div class="header-inner">
+        <div class="logo">DATASET HOUSE</div>
+        <nav>
+            <a href="{{ url_for('dataset_list') }}">Datasets</a>
+            <a href="{{ url_for('dataset_create') }}">Create</a>
+            <a href="{{ url_for('dataset_query') }}" target="_blank">Query</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </div>
+</header>
+
+<main class="main">
+    <h1>Edit Dataset</h1>
+
+    <form method="POST" action="{{ url_for('dataset_edit', id=dataset.id) }}">
+        <div class="form-grid">
+            <label>Dataset ID</label>
+            <div class="meta">#{{ dataset.id }}</div>
+
+            <label for="edit-name">Dataset Name</label>
+            <input id="edit-name" type="text" name="name" value="{{ dataset.name }}" required>
+
+            <label for="edit-desc">Description</label>
+            <textarea id="edit-desc" name="description">{{ dataset.description }}</textarea>
+
+            <label for="edit-tags">Tags</label>
+            <input id="edit-tags" type="text" name="tags" value="{{ dataset.tags }}">
+
+            <label>Rows</label>
+            <div class="meta">{{ dataset.rows }}</div>
+
+            <label>Columns</label>
+            <div class="meta">{{ dataset.columns }}</div>
+
+            <label>Table Name</label>
+            <div class="meta"><code>{{ dataset.table_name }}</code></div>
+
+            <label>Owner</label>
+            <div class="meta">{{ dataset.owner.full_name }}</div>
+
+            <label>Last Updated</label>
+            <div class="meta">{{ dataset.updated_at.strftime('%Y-%m-%d %H:%M') }}</div>
+
+            <label for="edit-visibility">Visibility</label>
+            <select id="edit-visibility" name="visibility">
+                <option value="private" {% if dataset.visibility == 'private' %}selected{% endif %}>Private (only me)</option>
+                <option value="public" {% if dataset.visibility == 'public' %}selected{% endif %}>Public (all users)</option>
+            </select>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{{ url_for('dataset_list') }}" class="btn btn-secondary">Cancel</a>
+
+            <a href="{{ url_for('dataset_delete', id=dataset.id) }}" 
+               class="btn btn-danger"
+               onclick="return confirm('Are you sure? This will delete the dataset and the SQL table permanently.');">
+               Delete Dataset
+            </a>
+        </div>
+    </form>
+</main>
+
+</body>
+</html>

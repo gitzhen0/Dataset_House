@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dataset House - SQL Query</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+<header>
+    <div class="header-inner">
+        <div class="logo">DATASET HOUSE</div>
+        <nav>
+            <a href="{{ url_for('dataset_list') }}">Datasets</a>
+            <a href="{{ url_for('dataset_create') }}">Create</a>
+            <a href="{{ url_for('dataset_query') }}" class="active">Query</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </div>
+</header>
+
+<main class="main">
+    <h1>Dataset Query Page</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="message {{ category }}" style="display: block;">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <h2>SQL Console</h2>
+
+    <form method="post" action="{{ url_for('dataset_query') }}">
+        <div class="form-grid">
+            <label>Result Format</label>
+            <div>
+                <label>
+                    <input type="radio" name="format" value="json" checked>
+                    JSON (View here)
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                    <input type="radio" name="format" value="csv">
+                    CSV (Download)
+                </label>
+            </div>
+
+            <label for="sql">Select Statement</label>
+            <textarea id="sql" name="sql" rows="8"
+                      placeholder="e.g. SELECT * FROM apple_stock LIMIT 5">SELECT * FROM datasets LIMIT 5</textarea>
+
+            <label></label>
+            <div>
+                <button type="submit" class="btn btn-primary">Run Query</button>
+                <a href="{{ url_for('dataset_list') }}" class="btn btn-secondary">Back to Datasets</a>
+            </div>
+        </div>
+    </form>
+
+    <h2 style="margin-top: 32px;">Results</h2>
+    <pre id="results" style="background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto;">
+{% if results %}
+{{ results }}
+{% else %}
+No results to display.
+{% endif %}
+    </pre>
+</main>
+
+</body>
+</html>

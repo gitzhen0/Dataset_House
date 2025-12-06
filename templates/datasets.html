@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dataset House - Datasets</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+<header>
+    <div class="header-inner">
+        <div class="logo">DATASET HOUSE</div>
+        <nav>
+            <a href="{{ url_for('dataset_list') }}" class="active">Datasets</a>
+            <a href="{{ url_for('dataset_create') }}">Create</a>
+            <a href="{{ url_for('dataset_query') }}" target="_blank">Query</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </div>
+</header>
+
+<main class="main">
+    <h1>Datasets Dashboard</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="message {{ category }}" style="display: block;">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="text-right meta">
+        Logged in as <strong>{{ current_user.full_name }}</strong>
+    </div>
+
+    <h2>My Datasets</h2>
+    {% if my_datasets %}
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Table</th>
+            <th>Rows</th>
+            <th>Types</th> <th>Updated</th>
+            <th>Visibility</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ds in my_datasets %}
+        <tr>
+            <td>
+                <strong>{{ ds.name }}</strong><br>
+                <span class="text-muted" style="font-size:0.8rem">{{ ds.tags }}</span>
+            </td>
+            <td><code>{{ ds.table_name }}</code></td>
+            <td>{{ ds.rows }}</td>
+            <td><span class="field-note">{{ ds.types }}</span></td>
+            <td>{{ ds.updated_at.strftime('%Y-%m-%d') }}</td>
+            <td>
+                {% if ds.visibility == 'private' %}
+                <span class="badge" style="background:#fee2e2; color:#991b1b">Private</span>
+                {% else %}
+                <span class="badge">Public</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{{ url_for('dataset_edit', id=ds.id) }}" class="action-link">Edit</a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p class="text-muted">You haven't uploaded any datasets yet.</p>
+    {% endif %}
+
+    <h2 style="margin-top:40px;">Community Datasets</h2>
+    {% if other_datasets %}
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Table</th>
+            <th>Rows</th>
+            <th>Types</th>
+            <th>Owner</th>
+            <th>Updated</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ds in other_datasets %}
+        <tr>
+            <td>
+                <strong>{{ ds.name }}</strong><br>
+                <span class="text-muted" style="font-size:0.8rem">{{ ds.tags }}</span>
+            </td>
+            <td><code>{{ ds.table_name }}</code></td>
+            <td>{{ ds.rows }}</td>
+            <td><span class="field-note">{{ ds.types }}</span></td>
+            <td>{{ ds.owner.full_name }}</td>
+            <td>{{ ds.updated_at.strftime('%Y-%m-%d') }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p class="text-muted">No public datasets from other users.</p>
+    {% endif %}
+
+    <div class="actions">
+        <a href="{{ url_for('dataset_create') }}" class="btn btn-primary">Create New Dataset</a>
+    </div>
+</main>
+
+</body>
+</html>

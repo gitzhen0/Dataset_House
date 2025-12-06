@@ -1,0 +1,270 @@
+
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #fff7ed;  
+    color: #111827;
+}
+
+
+
+header {
+    background-color: #f97316;     
+    color: #f9fafb;
+    border-bottom: 3px solid #ea580c; 
+}
+
+.header-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
+nav a {
+    margin-left: 16px;
+    text-decoration: none;
+    color: #fffbeb;             
+    font-size: 0.95rem;
+}
+
+nav a:hover,
+nav a.active {
+    text-decoration: underline;
+}
+
+
+
+.main {
+    max-width: 960px;
+    margin: 32px auto;
+    padding: 24px 24px 32px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+}
+
+.login-card {
+    max-width: 420px;
+    margin: 48px auto;
+}
+
+
+
+h1 {
+    margin: 0 0 16px;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+h2 {
+    margin: 24px 0 8px;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 10px 16px;
+    align-items: center;
+    margin-top: 12px;
+}
+
+label {
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="file"],
+textarea,
+select {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid #fed7aa;    
+    font: inherit;
+    background-color: #ffffff;
+}
+
+textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: #f97316;       
+    box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.25);
+}
+
+
+
+.actions {
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-block;
+    padding: 8px 18px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #f97316;     
+    color: #f9fafb;
+}
+
+.btn-secondary {
+    background-color: #ffffff;
+    color: #92400e;         
+    border-color: #fed7aa;
+}
+
+.btn-danger {
+    background-color: #b91c1c;
+    color: #fef2f2;
+}
+
+.btn-link {
+    padding: 0;
+    border: none;
+    background: none;
+    color: #f97316;     
+    font-weight: 500;
+}
+
+
+
+.message {
+    padding: 10px 12px;
+    margin-bottom: 16px;
+    border-radius: 6px;
+    border: 1px solid #fed7aa;      
+    background-color: #fff7ed;     
+    font-size: 0.88rem;
+}
+
+.message.error {
+    border-color: #fecaca;
+    background-color: #fef2f2;
+    color: #b91c1c;
+}
+
+.message.success {
+    border-color: #bef264;       
+    background-color: #f7fee7;
+    color: #4d7c0f;
+}
+
+
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    font-size: 0.9rem;
+}
+
+.table th,
+.table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #fee2e2; 
+    text-align: left;
+}
+
+.table th {
+    background-color: #fff7ed;   
+    font-weight: 600;
+}
+
+.table tr:nth-child(even) td {
+    background-color: #fffbeb;     
+}
+
+.table a.action-link {
+    margin-right: 8px;
+    font-size: 0.9rem;
+}
+
+
+
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    background-color: #ffedd5;       
+    color: #92400e;               
+}
+
+.meta {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-muted {
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+.field-note {
+    font-size: 0.8rem;
+    color: #9ca3af;
+}
+
+
+
+@media (max-width: 640px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-grid label {
+        padding-top: 4px;
+    }
+
+    .header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    nav a {
+        margin-left: 0;
+        margin-right: 12px;
+    }
+}
