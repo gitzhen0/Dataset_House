@@ -188,6 +188,11 @@ def dataset_create():
 
                 clean_table_name = f"ds_{clean_table_name}"
 
+            existing_dataset = Dataset.query.filter_by(table_name=clean_table_name).first()
+            if existing_dataset:
+                flash(f'Error: The Table Name "{clean_table_name}" is already taken. Please choose a different one.', 'error')
+                return redirect(request.url) # 直接打回，让用户重填
+
             df.to_sql(clean_table_name, con=db.engine, if_exists='replace', index=False)
 
             new_dataset = Dataset(
