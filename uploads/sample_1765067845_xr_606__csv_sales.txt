@@ -1,0 +1,11 @@
+region,country,product,sales
+I,US,A,100
+II,US,A,150
+III,UK,A,400
+I,US,B,200
+II,US,B,100
+III,UK,B,50
+I,US,C,250
+II,US,C,300
+III,UK,C,175
+IV,JP,C,75
