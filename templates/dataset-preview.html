@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Preview - {{ dataset.name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        /* 稍微调整一下 Pandas 生成的表格样式 */
+        .preview-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow-x: auto; /* 如果列太多，允许横向滚动 */
+        }
+        /* 强制表格宽度铺满，如果不想要铺满可以去掉 */
+        .dataframe {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .dataframe th {
+            text-align: left;
+            background-color: #f3f4f6;
+            padding: 10px;
+        }
+        .dataframe td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-inner">
+        <div class="logo">DATASET HOUSE</div>
+        <nav>
+            <a href="{{ url_for('dataset_list') }}">Datasets</a>
+            <a href="{{ url_for('dataset_create') }}">Create</a>
+            <a href="{{ url_for('dataset_query') }}" target="_blank">Query</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </div>
+</header>
+
+<main class="main">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div>
+            <h1>Data Preview: {{ dataset.name }}</h1>
+            <p class="text-muted" style="margin:0;">Showing first 10 rows of <code>{{ dataset.table_name }}</code></p>
+        </div>
+        <a href="{{ url_for('dataset_list') }}" class="btn btn-secondary">Back to List</a>
+    </div>
+
+    <div class="preview-container">
+        {{ table_html | safe }}
+    </div>
+    
+    <div style="margin-top: 20px; text-align: center;">
+        <a href="{{ url_for('dataset_stats', id=dataset.id) }}" class="btn btn-primary">View Statistics</a>
+        <a href="{{ url_for('dataset_query') }}" target="_blank" class="btn btn-secondary">Query with SQL</a>
+    </div>
+</main>
+
+</body>
+</html>

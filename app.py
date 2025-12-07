@@ -466,5 +466,27 @@ def admin_reset_db():
     except Exception as e:
         return f"<h3 style='color:red;'>Error resetting database: {str(e)}</h3>"
 
+# --- Feature 2: Data Preview ---
+
+@app.route('/dataset/preview/<int:id>')
+@login_required
+def dataset_preview(id):
+    dataset = Dataset.query.get_or_404(id)
+    
+    try:
+        # 1. 只查询前 10 行 (LIMIT 10)
+        query = f"SELECT * FROM {dataset.table_name} LIMIT 10"
+        df = pd.read_sql(query, db.session.connection())
+        
+        # 2. 转换为 HTML (添加 Bootstrap 样式类 'table' 让它变好看)
+        # index=False 表示不显示 pandas 的索引列 (0,1,2...)
+        table_html = df.to_html(classes='table table-striped table-hover', index=False, border=0)
+        
+    except Exception as e:
+        flash(f"Error loading preview: {str(e)}", 'error')
+        return redirect(url_for('dataset_list'))
+
+    return render_template('dataset-preview.html', dataset=dataset, table_html=table_html)
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

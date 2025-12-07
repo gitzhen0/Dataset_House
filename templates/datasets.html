@@ -69,6 +69,7 @@
                 {% endif %}
             </td>
             <td>
+                <a href="{{ url_for('dataset_preview', id=ds.id) }}" class="action-link" style="color: #2563eb;">Preview</a>
                 <a href="{{ url_for('dataset_stats', id=ds.id) }}" class="action-link" style="color: #059669;">Stats</a>
                 <a href="{{ url_for('dataset_edit', id=ds.id) }}" class="action-link">Edit</a>
             </td>
@@ -107,6 +108,7 @@
             <td>{{ ds.owner.full_name }}</td>
             <td>{{ ds.updated_at.strftime('%Y-%m-%d') }}</td>
             <td>
+                <a href="{{ url_for('dataset_preview', id=ds.id) }}" class="action-link" style="color: #2563eb;">Preview</a>
                 <a href="{{ url_for('dataset_stats', id=ds.id) }}" class="action-link" style="color: #059669;">Stats</a>
             </td>
         </tr>
