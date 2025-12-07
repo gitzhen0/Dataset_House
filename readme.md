@@ -1,1 +1,1 @@
-* http://127.0.0.1:5000/admin/reset-db?secret=123456
+* DB Reset link: http://127.0.0.1:5000/admin/reset-db?secret=123456

@@ -5,15 +5,15 @@
     <title>Preview - {{ dataset.name }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <style>
-        /* 稍微调整一下 Pandas 生成的表格样式 */
+        
         .preview-container {
             background: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            overflow-x: auto; /* 如果列太多，允许横向滚动 */
+            overflow-x: auto; 
         }
-        /* 强制表格宽度铺满，如果不想要铺满可以去掉 */
+        
         .dataframe {
             width: 100%;
             border-collapse: collapse;

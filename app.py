@@ -3,10 +3,10 @@ import json
 import csv
 import io
 import re
-import shutil  # <--- 新增，用于复制文件
-import glob    # <--- 新增，用于查找文件
+import shutil 
+import glob    
 from flask import make_response
-# 其他 import 保持不变
+
 from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -18,7 +18,7 @@ import os
 from werkzeug.utils import secure_filename
 from datetime import datetime
 
-from sqlalchemy import text  # <--- 新增这行，用于执行 DROP TABLE
+from sqlalchemy import text  
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dev-key-for-project'
@@ -28,20 +28,20 @@ app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads')
 
 db.init_app(app)
 
-# --- 1. 初始化 Flask-Login ---
+
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login' # 如果未登录访问受限页面，跳转到这里
+login_manager.login_view = 'login' 
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# --- 2. 路由定义 ---
+
 
 @app.route('/')
 def index():
-    # 如果已登录，去 Dashboard；否则去登录页
+
     if current_user.is_authenticated:
         return redirect(url_for('dataset_list'))
     return redirect(url_for('login'))
@@ -57,7 +57,7 @@ def register():
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
 
-        # 简单校验
+
         if password != confirm_password:
             flash('Passwords do not match.', 'error')
             return redirect(url_for('register'))
@@ -67,7 +67,7 @@ def register():
             flash('Email already registered.', 'error')
             return redirect(url_for('register'))
 
-        # 创建新用户 (Hash 密码)
+
         hashed_pw = generate_password_hash(password, method='pbkdf2:sha256')
         new_user = User(full_name=full_name, email=email, password_hash=hashed_pw)
         
@@ -90,7 +90,7 @@ def login():
 
         user = User.query.filter_by(email=email).first()
 
-        # 验证 Hash 密码
+
         if not user or not check_password_hash(user.password_hash, password):
             flash('Invalid email or password.', 'error')
             return redirect(url_for('login'))
@@ -106,17 +106,15 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-# --- 在 app.py 中更新/替换这两个函数 ---
-# --- Updated Step 3: Dataset Creation with Samples ---
+
 
 @app.route('/dataset/create', methods=['GET', 'POST'])
 @login_required
 def dataset_create():
-    # 1. 定义样本文件夹路径
+
     sample_folder = os.path.join(os.getcwd(), 'sample_data')
     
-    # 2. 获取样本文件列表 (支持 .csv 和 .txt)
-    # 使用 glob 获取路径，然后用 os.path.basename 取文件名
+
     sample_files = []
     if os.path.exists(sample_folder):
         paths = glob.glob(os.path.join(sample_folder, '*.csv')) + \
@@ -130,28 +128,28 @@ def dataset_create():
         tags = request.form.get('tags')
         visibility = request.form.get('visibility')
         
-        # 获取用户选择的样本文件名
+
         selected_sample = request.form.get('sample_file')
         
-        # 逻辑分支：是选择样本，还是上传文件？
+
         file_path = None
         
-        # A. 如果用户选了样本
+
         if selected_sample and selected_sample != "":
             source_path = os.path.join(sample_folder, selected_sample)
             if os.path.exists(source_path):
-                # 生成新的文件名 (避免冲突)
+
                 unique_filename = f"sample_{int(datetime.now().timestamp())}_{selected_sample}"
                 dest_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
                 
-                # 关键：把样本文件 COPY 到 uploads 文件夹
+
                 shutil.copy(source_path, dest_path)
                 file_path = dest_path
             else:
                 flash('Selected sample file not found.', 'error')
                 return redirect(request.url)
 
-        # B. 如果用户上传了文件 (且没选样本)
+
         elif 'file' in request.files:
             file = request.files['file']
             if file and file.filename != '':
@@ -164,13 +162,13 @@ def dataset_create():
             flash('Please upload a file OR select a sample.', 'error')
             return redirect(request.url)
 
-        # --- 以下逻辑和之前一样 (解析 & 入库) ---
+
         try:
             df = pd.read_csv(file_path)
             rows_count = df.shape[0]
             columns_count = df.shape[1]
             
-            # 计算 Types
+
             type_list = []
             for dtype in df.dtypes:
                 d_str = str(dtype)
@@ -179,16 +177,15 @@ def dataset_create():
                 else: type_list.append('str')
             types_str = ", ".join(sorted(set(type_list)))
 
-            # === 修改开始 ===
-            # 1. 清洗特殊字符
+
             clean_table_name = "".join([c for c in table_name if c.isalnum() or c == '_'])
             
-            # 2. 如果清洗后为空，或者以数字开头，强制加前缀
+
             if not clean_table_name:
-                # 如果用户乱填导致为空
+
                 clean_table_name = f"ds_{current_user.id}_{int(datetime.now().timestamp())}"
             elif clean_table_name[0].isdigit():
-                # 关键修复：如果以数字开头 (例如 "2")，自动改为 "ds_2"
+
                 clean_table_name = f"ds_{clean_table_name}"
 
             df.to_sql(clean_table_name, con=db.engine, if_exists='replace', index=False)
@@ -215,18 +212,18 @@ def dataset_create():
             flash(f'Error processing file: {str(e)}', 'error')
             return redirect(request.url)
 
-    # GET 请求：渲染页面，并把 sample_files 传给前端
+
     return render_template('dataset-create.html', sample_files=sample_files)
 
 
-# 2. 实现真正的 Dashboard (列表页)
+
 @app.route('/datasets')
 @login_required
 def dataset_list():
-    # 获取我的数据集
+
     my_datasets = Dataset.query.filter_by(owner_id=current_user.id).order_by(Dataset.created_at.desc()).all()
     
-    # 获取其他人的公开数据集
+
     other_datasets = Dataset.query.filter(
         Dataset.owner_id != current_user.id, 
         Dataset.visibility == 'public'
@@ -234,25 +231,25 @@ def dataset_list():
     
     return render_template('datasets.html', my_datasets=my_datasets, other_datasets=other_datasets)
 
-# --- 在 app.py 末尾补充这个命令 ---
+
 
 @app.cli.command("init-db")
 def init_db_command():
     """Clear the existing data and create new tables."""
     with app.app_context():
-        db.drop_all()  # 删除所有旧表
-        db.create_all() # 根据最新的 models.py 创建新表
+        db.drop_all()  
+        db.create_all() 
         print("Initialized the database successfully.")
 
 
-# --- Step 5: Edit & Delete Logic ---
+
 
 @app.route('/dataset/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def dataset_edit(id):
     dataset = Dataset.query.get_or_404(id)
 
-    # 权限检查：只有 Owner 能编辑
+
     if dataset.owner_id != current_user.id:
         flash('You do not have permission to edit this dataset.', 'error')
         return redirect(url_for('dataset_list'))
@@ -263,7 +260,7 @@ def dataset_edit(id):
         dataset.tags = request.form.get('tags')
         dataset.visibility = request.form.get('visibility')
         
-        # 更新时间
+
         dataset.updated_at = datetime.utcnow()
         
         db.session.commit()
@@ -277,22 +274,21 @@ def dataset_edit(id):
 def dataset_delete(id):
     dataset = Dataset.query.get_or_404(id)
 
-    # 权限检查
+
     if dataset.owner_id != current_user.id:
         flash('You do not have permission to delete this dataset.', 'error')
         return redirect(url_for('dataset_list'))
 
     try:
-        # 1. 删除动态生成的 SQL 表 (使用 raw SQL)
-        # 注意：这里我们信任系统生成的 table_name，但生产环境需更谨慎
+
         drop_query = text(f"DROP TABLE IF EXISTS {dataset.table_name}")
         db.session.execute(drop_query)
         
-        # 2. 删除 DATASETS 表里的记录
+
         db.session.delete(dataset)
         db.session.commit()
         
-        # (可选) 3. 如果你想删除对应的 CSV 文件，也可以在这里用 os.remove(dataset.file_path)
+
         
         flash(f'Dataset "{dataset.name}" deleted.', 'success')
     except Exception as e:
@@ -310,28 +306,26 @@ def dataset_query():
 
     if request.method == 'POST':
         sql = request.form.get('sql')
-        result_format = request.form.get('format') # 'json' or 'csv'
+        result_format = request.form.get('format') 
 
-        # 1. 安全检查：只允许 SELECT
+
         if not sql.strip().lower().startswith('select'):
             flash('Only SELECT statements are allowed.', 'error')
             return render_template('dataset-query.html')
 
         try:
-            # 2. 执行 SQL
-            # 使用 db.session.execute 执行原生 SQL
+           
             query_result = db.session.execute(text(sql))
             
-            # 获取列名 (keys) 和 数据 (fetchall)
+    
             columns = query_result.keys() 
             rows = query_result.fetchall()
 
-            # 3. 记录日志 (QueryLog) - 尝试解析表名
-            # 简单的正则：找 FROM 后面那个词
+         
             match = re.search(r'from\s+(\w+)', sql, re.IGNORECASE)
             if match:
                 table_found = match.group(1)
-                # 查找对应的 Dataset
+         
                 target_ds = Dataset.query.filter_by(table_name=table_found).first()
                 if target_ds:
                     log = QueryLog(
@@ -343,23 +337,22 @@ def dataset_query():
                     db.session.add(log)
                     db.session.commit()
 
-            # 4. 格式化输出
+
             if result_format == 'csv':
-                # 生成 CSV 下载
+
                 si = io.StringIO()
                 cw = csv.writer(si)
-                cw.writerow(columns) # 写入表头
-                cw.writerows(rows)   # 写入数据
+                cw.writerow(columns) 
+                cw.writerows(rows)   
                 output = make_response(si.getvalue())
                 output.headers["Content-Disposition"] = "attachment; filename=query_result.csv"
                 output.headers["Content-type"] = "text/csv"
                 return output
             
             else:
-                # 默认 JSON 格式：转为字典列表以便前端展示
-                # rows 是 tuple，需要转为 dict
+
                 data_list = [dict(zip(columns, row)) for row in rows]
-                results = json.dumps(data_list, indent=4, default=str) # default=str 处理 datetime 对象
+                results = json.dumps(data_list, indent=4, default=str) 
                 flash(f'Query executed successfully. {len(rows)} rows returned.', 'success')
 
         except Exception as e:
@@ -375,20 +368,20 @@ def dataset_query():
 def dataset_stats(id):
     dataset = Dataset.query.get_or_404(id)
     
-    # 1. 读取数据
+
     try:
         df = pd.read_sql(f"SELECT * FROM {dataset.table_name}", db.session.connection())
     except Exception as e:
         flash(f"Error reading table: {e}", "error")
         return redirect(url_for('dataset_list'))
 
-    # 2. 计算统计指标
+
     summary = []
     
     for col in df.columns:
         col_data = df[col]
         
-        # 基础指标
+
         col_stat = {
             'name': col,
             'type': str(col_data.dtype),
@@ -400,17 +393,16 @@ def dataset_stats(id):
             'max': '-'
         }
         
-        # 数值型指标 (只有数字才有平均值)
-        # 简单的判断方法：看类型是否包含 int 或 float
+
         if 'int' in str(col_data.dtype) or 'float' in str(col_data.dtype):
             try:
                 col_stat['mean'] = round(col_data.mean(), 2)
                 col_stat['min'] = col_data.min()
                 col_stat['max'] = col_data.max()
             except:
-                pass # 如果数据有脏数据导致计算失败，保持 '-'
+                pass 
         else:
-            # 字符串类型：Min/Max 通常是字母顺序，也可以显示
+
             try:
                 col_stat['min'] = col_data.min()
                 col_stat['max'] = col_data.max()
@@ -426,27 +418,24 @@ def dataset_stats(id):
 
 @app.route('/admin/reset-db')
 def admin_reset_db():
-    # 1. 安全检查 (Security Check)
-    # 只有 URL 里带了 ?secret=my_super_secret_key 才能执行
+
     secret = request.args.get('secret')
     
-    # 你可以把这个 key 改成你自己想设的密码
+
     ADMIN_SECRET = "123456" 
     
     if secret != ADMIN_SECRET:
-        # 如果密码不对，直接拒绝
+
         return "<h3 style='color:red;'>403 Forbidden: Invalid Secret Key</h3>", 403
 
     try:
-        # 2. 执行重置 (Reset Logic)
-        # db.drop_all() 会删除所有表 (Users, Datasets, QueryLogs)
+
         db.drop_all()
         
-        # db.create_all() 会根据 models.py 重新创建空表
+
         db.create_all()
         
-        # 3. (可选) 自动创建一个默认管理员账号
-        # 这样重置后你不用每次都手动注册，直接就能登录
+
         from werkzeug.security import generate_password_hash
         admin_user = User(
             full_name="Admin User",
@@ -466,7 +455,7 @@ def admin_reset_db():
     except Exception as e:
         return f"<h3 style='color:red;'>Error resetting database: {str(e)}</h3>"
 
-# --- Feature 2: Data Preview ---
+
 
 @app.route('/dataset/preview/<int:id>')
 @login_required
@@ -474,12 +463,11 @@ def dataset_preview(id):
     dataset = Dataset.query.get_or_404(id)
     
     try:
-        # 1. 只查询前 10 行 (LIMIT 10)
+
         query = f"SELECT * FROM {dataset.table_name} LIMIT 10"
         df = pd.read_sql(query, db.session.connection())
         
-        # 2. 转换为 HTML (添加 Bootstrap 样式类 'table' 让它变好看)
-        # index=False 表示不显示 pandas 的索引列 (0,1,2...)
+
         table_html = df.to_html(classes='table table-striped table-hover', index=False, border=0)
         
     except Exception as e:

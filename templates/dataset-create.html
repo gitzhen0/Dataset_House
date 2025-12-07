@@ -84,11 +84,11 @@
             const fileInput = document.getElementById('ds-file');
 
             if (sampleSelect.value !== "") {
-                // 如果选了样本，禁用上传框，并移除 required
+ 
                 fileInput.disabled = true;
                 fileInput.required = false;
             } else {
-                // 如果没选样本，启用上传框
+  
                 fileInput.disabled = false;
             }
         }
