@@ -179,9 +179,17 @@ def dataset_create():
                 else: type_list.append('str')
             types_str = ", ".join(sorted(set(type_list)))
 
+            # === 修改开始 ===
+            # 1. 清洗特殊字符
             clean_table_name = "".join([c for c in table_name if c.isalnum() or c == '_'])
+            
+            # 2. 如果清洗后为空，或者以数字开头，强制加前缀
             if not clean_table_name:
+                # 如果用户乱填导致为空
                 clean_table_name = f"ds_{current_user.id}_{int(datetime.now().timestamp())}"
+            elif clean_table_name[0].isdigit():
+                # 关键修复：如果以数字开头 (例如 "2")，自动改为 "ds_2"
+                clean_table_name = f"ds_{clean_table_name}"
 
             df.to_sql(clean_table_name, con=db.engine, if_exists='replace', index=False)
 
@@ -359,6 +367,104 @@ def dataset_query():
             flash(f'SQL Error: {error}', 'error')
 
     return render_template('dataset-query.html', results=results)
+
+# --- Feature 1: Auto-EDA Statistics ---
+
+@app.route('/dataset/stats/<int:id>')
+@login_required
+def dataset_stats(id):
+    dataset = Dataset.query.get_or_404(id)
+    
+    # 1. 读取数据
+    try:
+        df = pd.read_sql(f"SELECT * FROM {dataset.table_name}", db.session.connection())
+    except Exception as e:
+        flash(f"Error reading table: {e}", "error")
+        return redirect(url_for('dataset_list'))
+
+    # 2. 计算统计指标
+    summary = []
+    
+    for col in df.columns:
+        col_data = df[col]
+        
+        # 基础指标
+        col_stat = {
+            'name': col,
+            'type': str(col_data.dtype),
+            'count': len(col_data),
+            'missing': int(col_data.isnull().sum()),
+            'unique': col_data.nunique(),
+            'mean': '-',
+            'min': '-',
+            'max': '-'
+        }
+        
+        # 数值型指标 (只有数字才有平均值)
+        # 简单的判断方法：看类型是否包含 int 或 float
+        if 'int' in str(col_data.dtype) or 'float' in str(col_data.dtype):
+            try:
+                col_stat['mean'] = round(col_data.mean(), 2)
+                col_stat['min'] = col_data.min()
+                col_stat['max'] = col_data.max()
+            except:
+                pass # 如果数据有脏数据导致计算失败，保持 '-'
+        else:
+            # 字符串类型：Min/Max 通常是字母顺序，也可以显示
+            try:
+                col_stat['min'] = col_data.min()
+                col_stat['max'] = col_data.max()
+            except:
+                pass
+
+        summary.append(col_stat)
+
+    return render_template('dataset-stats.html', dataset=dataset, summary=summary)
+
+
+# --- Admin Tool: Database Reset Route ---
+
+@app.route('/admin/reset-db')
+def admin_reset_db():
+    # 1. 安全检查 (Security Check)
+    # 只有 URL 里带了 ?secret=my_super_secret_key 才能执行
+    secret = request.args.get('secret')
+    
+    # 你可以把这个 key 改成你自己想设的密码
+    ADMIN_SECRET = "123456" 
+    
+    if secret != ADMIN_SECRET:
+        # 如果密码不对，直接拒绝
+        return "<h3 style='color:red;'>403 Forbidden: Invalid Secret Key</h3>", 403
+
+    try:
+        # 2. 执行重置 (Reset Logic)
+        # db.drop_all() 会删除所有表 (Users, Datasets, QueryLogs)
+        db.drop_all()
+        
+        # db.create_all() 会根据 models.py 重新创建空表
+        db.create_all()
+        
+        # 3. (可选) 自动创建一个默认管理员账号
+        # 这样重置后你不用每次都手动注册，直接就能登录
+        from werkzeug.security import generate_password_hash
+        admin_user = User(
+            full_name="Admin User",
+            email="admin@example.com",
+            password_hash=generate_password_hash("123456", method='pbkdf2:sha256')
+        )
+        db.session.add(admin_user)
+        db.session.commit()
+
+        return """
+        <h1 style='color:green;'>Database has been reset successfully!</h1>
+        <p>All tables dropped and recreated.</p>
+        <p>Default user created: <b>admin@example.com / 123456</b></p>
+        <p><a href='/login'>Go to Login</a></p>
+        """
+        
+    except Exception as e:
+        return f"<h3 style='color:red;'>Error resetting database: {str(e)}</h3>"
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dataset Statistics - {{ dataset.name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        /* 增加一点表格样式让它更好看 */
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .stat-table th { background-color: #f3f4f6; }
+        .text-num { text-align: right; font-family: monospace; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-inner">
+        <div class="logo">DATASET HOUSE</div>
+        <nav>
+            <a href="{{ url_for('dataset_list') }}">Datasets</a>
+            <a href="{{ url_for('dataset_create') }}">Create</a>
+            <a href="{{ url_for('dataset_query') }}" target="_blank">Query</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </div>
+</header>
+
+<main class="main">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Data Statistics: {{ dataset.name }}</h1>
+        <a href="{{ url_for('dataset_list') }}" class="btn btn-secondary">Back to List</a>
+    </div>
+
+    <div class="stat-card">
+        <div class="meta" style="margin-bottom: 10px;">
+            <strong>Table:</strong> {{ dataset.table_name }} | 
+            <strong>Total Rows:</strong> {{ dataset.rows }} | 
+            <strong>Total Columns:</strong> {{ dataset.columns }}
+        </div>
+
+        <table class="table stat-table">
+            <thead>
+                <tr>
+                    <th>Column Name</th>
+                    <th>Type</th>
+                    <th class="text-right">Missing (Null)</th>
+                    <th class="text-right">Unique Values</th>
+                    <th class="text-right">Min</th>
+                    <th class="text-right">Max</th>
+                    <th class="text-right">Mean (Avg)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in summary %}
+                <tr>
+                    <td><strong>{{ row.name }}</strong></td>
+                    <td><span class="badge">{{ row.type }}</span></td>
+                    
+                    <td class="text-right">
+                        {% if row.missing > 0 %}
+                            <span style="color: red; font-weight: bold;">{{ row.missing }}</span>
+                        {% else %}
+                            <span style="color: #ccc;">0</span>
+                        {% endif %}
+                    </td>
+                    
+                    <td class="text-right">{{ row.unique }}</td>
+                    <td class="text-right">{{ row.min }}</td>
+                    <td class="text-right">{{ row.max }}</td>
+                    <td class="text-right">{{ row.mean }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</main>
+
+</body>
+</html>

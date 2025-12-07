@@ -44,7 +44,8 @@
             <th>Name</th>
             <th>Table</th>
             <th>Rows</th>
-            <th>Types</th> <th>Updated</th>
+            <th>Types</th>
+            <th>Updated</th>
             <th>Visibility</th>
             <th>Actions</th>
         </tr>
@@ -68,6 +69,7 @@
                 {% endif %}
             </td>
             <td>
+                <a href="{{ url_for('dataset_stats', id=ds.id) }}" class="action-link" style="color: #059669;">Stats</a>
                 <a href="{{ url_for('dataset_edit', id=ds.id) }}" class="action-link">Edit</a>
             </td>
         </tr>
@@ -89,6 +91,7 @@
             <th>Types</th>
             <th>Owner</th>
             <th>Updated</th>
+            <th>Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -103,6 +106,9 @@
             <td><span class="field-note">{{ ds.types }}</span></td>
             <td>{{ ds.owner.full_name }}</td>
             <td>{{ ds.updated_at.strftime('%Y-%m-%d') }}</td>
+            <td>
+                <a href="{{ url_for('dataset_stats', id=ds.id) }}" class="action-link" style="color: #059669;">Stats</a>
+            </td>
         </tr>
         {% endfor %}
         </tbody>
