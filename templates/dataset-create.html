@@ -38,19 +38,33 @@
             <input id="ds-name" type="text" name="name" placeholder="e.g. NYC Taxi Trips" required>
 
             <label for="ds-table">Table Name (SQL)</label>
-            <input id="ds-table" type="text" name="table_name" placeholder="e.g. nyc_taxi_2025" required>
-            <span class="field-note">Use letters, numbers and underscores only. This will be the SQL table name.</span>
+            <input id="ds-table" type="text" name="table_name" placeholder="e.g. nyc_taxi" required>
 
             <label for="ds-desc">Description</label>
-            <textarea id="ds-desc" name="description" placeholder="Short description of the dataset..."></textarea>
+            <textarea id="ds-desc" name="description"></textarea>
 
             <label for="ds-tags">Tags</label>
-            <input id="ds-tags" type="text" name="tags" placeholder="e.g. transport, nyc">
+            <input id="ds-tags" type="text" name="tags">
 
-            <label for="ds-file">CSV/TXT File</label>
-            <input id="ds-file" type="file" name="file" accept=".csv, .txt" required>
-            <span class="field-note">Upload a .csv or .txt file (comma separated).</span>
+            <hr style="grid-column: 1 / -1; border: 0; border-top: 1px solid #eee; margin: 10px 0;">
 
+            <label style="color: #2563eb;">Option A: Sample</label>
+            <select id="sample-select" name="sample_file" onchange="toggleFileSource()">
+                <option value="">-- Select a Sample Dataset --</option>
+                {% for f in sample_files %}
+                <option value="{{ f }}">{{ f }}</option>
+                {% endfor %}
+            </select>
+
+            <div style="text-align: center; font-size: 0.9rem; color: #888;">- OR -</div>
+            <div style="font-size: 0.9rem; color: #888;"></div>
+
+            <label for="ds-file" style="color: #2563eb;">Option B: Upload</label>
+            <div>
+                <input id="ds-file" type="file" name="file" accept=".csv, .txt">
+                <span class="field-note">Upload .csv or .txt</span>
+            </div>
+            
             <label for="ds-public">Visibility</label>
             <select id="ds-public" name="visibility">
                 <option value="public">Public (all users)</option>
@@ -63,6 +77,22 @@
             <a href="{{ url_for('dataset_list') }}" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
+
+    <script>
+        function toggleFileSource() {
+            const sampleSelect = document.getElementById('sample-select');
+            const fileInput = document.getElementById('ds-file');
+
+            if (sampleSelect.value !== "") {
+                // 如果选了样本，禁用上传框，并移除 required
+                fileInput.disabled = true;
+                fileInput.required = false;
+            } else {
+                // 如果没选样本，启用上传框
+                fileInput.disabled = false;
+            }
+        }
+    </script>
 </main>
 
 </body>

@@ -1,0 +1,57 @@
+Name,Age,Fare,Gender,Class,Survival
+"Rosblom, Miss. Salli Helena",2,20.21,Female,Third,No
+"Panula, Master. Urho Abraham",2,39.69,Male,Third,No
+"Johnson, Master. Harold Theodor",4,11.13,Male,Third,Yes
+"Skoog, Master. Harald",4,27.90,Male,Third,No
+"Spedden, Master. Robert Douglas",6,134.50,Male,First,Yes
+"Rice, Master. Albert",10,29.13,Male,Third,No
+"van Billiard, Master. Walter John",11.5,14.50,Male,Third,No
+"Calic, Mr. Petar",17,8.66,Male,Third,No
+"Penasco y Castellana, Mrs. Victor de Satode",17,108.90,Female,First,Yes
+"Taussig, Miss. Ruth",18,79.65,Female,First,Yes
+"Burke, Mr. Jeremiah",19,6.75,Male,Third,No
+"Dorking, Mr. Edward Arthur",19,8.05,Male,Third,Yes
+"Dakic, Mr. Branko",19,10.17,Male,Third,No
+"Lindqvist, Mr. Eino William",20,7.93,Male,Third,Yes
+"Pekoniemi, Mr. Edvard",21,7.93,Male,Third,No
+"Stanley, Mr. Edward Roland",21,8.05,Male,Third,No
+"Landergren, Miss. Aurora Adelia",22,7.25,Female,Third,Yes
+"Nysten, Miss. Anna Sofia",22,7.75,Female,Third,Yes
+"Vovk, Mr. Janko",22,7.90,Male,Third,No
+"Snyder, Mrs. John Pillsbury (Nelle Stevenson)",23,82.27,Female,First,Yes
+"Lievens, Mr. Rene Aime",24,9.50,Male,Third,No
+"Delalic, Mr. Redjo",25,7.90,Male,Third,No
+"Birnbaum, Mr. Jakob",25,26.00,Male,First,No
+"Hedman, Mr. Oskar Arvid",27,6.98,Male,Third,Yes
+"Zakarian, Mr. Ortin",27,7.23,Male,Third,No
+"Montvila, Rev. Juozas",27,13.00,Male,Second,No
+"Clark, Mr. Walter Miller",27,136.78,Male,First,No
+"Parker, Mr. Clifford Richard",28,10.50,Male,Second,No
+"Beauchamp, Mr. Henry James",28,26.00,Male,Second,No
+"Bjornstrom-Steffansson, Mr. Mauritz Hakan",28,26.55,Male,First,Yes
+"Corn, Mr. Harry",30,8.05,Male,Third,No
+"Lobb, Mr. William Arthur",30,16.10,Male,Third,No
+"Ware, Mr. John James",30,21.00,Male,Second,No
+"Maguire, Mr. John Edward",30,26.00,Male,First,No
+"Mangan, Miss. Mary",30.5,7.75,Female,Third,No
+"Tucker, Mr. Gilbert Milligan Jr",31,28.54,Male,First,Yes
+"Keeping, Mr. Edwin",32.5,211.50,Male,First,No
+"Carlsson, Mr. Frans Olof",33,5.00,Male,First,No
+"Minahan, Miss. Daisy E",33,90.00,Female,First,Yes
+"Rintamaki, Mr. Matti",35,7.13,Male,Third,No
+"Brocklebank, Mr. William Alfred",35,8.05,Male,Third,No
+"Homer, Mr. Harry (""Mr E Haven"")",35,26.55,Male,First,Yes
+"Dennis, Mr. William",36,7.25,Male,Third,No
+"Gale, Mr. Harry",38,21.00,Male,Second,No
+"Cumings, Mrs. John Bradley (Florence Briggs Thayer)",38,71.28,Female,First,Yes
+"Oliva y Ocana, Dona. Fermina",39,108.90,Female,First,Yes
+"Peruschitz, Rev. Joseph Maria",41,13.00,Male,Second,No
+"Cribb, Mr. John Hatfield",44,16.10,Male,Third,No
+"McCaffry, Mr. Thomas Francis",46,75.24,Male,First,No
+"Wilkes, Mrs. James (Ellen Needs)",47,7.00,Female,Third,Yes
+"Jensen, Mr. Niels Peder",48,7.85,Male,Third,No
+"Isham, Miss. Ann Elizabeth",50,28.71,Female,First,No
+"Carter, Rev. Ernest Courtenay",54,26.00,Male,Second,No
+"Duane, Mr. Frank",65,7.75,Male,Third,No
+"Straus, Mr. Isidor",67,221.78,Male,First,No
+"Mitchell, Mr. Henry Michael",70,10.50,Male,Second,No

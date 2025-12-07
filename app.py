@@ -3,6 +3,8 @@ import json
 import csv
 import io
 import re
+import shutil  # <--- 新增，用于复制文件
+import glob    # <--- 新增，用于查找文件
 from flask import make_response
 # 其他 import 保持不变
 from flask import Flask, render_template, redirect, url_for, flash, request
@@ -105,11 +107,22 @@ def logout():
     return redirect(url_for('login'))
 
 # --- 在 app.py 中更新/替换这两个函数 ---
+# --- Updated Step 3: Dataset Creation with Samples ---
 
-# 1. 更新 Create 逻辑：增加 Types 计算
 @app.route('/dataset/create', methods=['GET', 'POST'])
 @login_required
 def dataset_create():
+    # 1. 定义样本文件夹路径
+    sample_folder = os.path.join(os.getcwd(), 'sample_data')
+    
+    # 2. 获取样本文件列表 (支持 .csv 和 .txt)
+    # 使用 glob 获取路径，然后用 os.path.basename 取文件名
+    sample_files = []
+    if os.path.exists(sample_folder):
+        paths = glob.glob(os.path.join(sample_folder, '*.csv')) + \
+                glob.glob(os.path.join(sample_folder, '*.txt'))
+        sample_files = [os.path.basename(p) for p in paths]
+    
     if request.method == 'POST':
         name = request.form.get('name')
         table_name = request.form.get('table_name')
@@ -117,66 +130,85 @@ def dataset_create():
         tags = request.form.get('tags')
         visibility = request.form.get('visibility')
         
-        if 'file' not in request.files:
-            flash('No file part', 'error')
-            return redirect(request.url)
-        file = request.files['file']
-        if file.filename == '':
-            flash('No selected file', 'error')
-            return redirect(request.url)
-
-        if file:
-            filename = secure_filename(file.filename)
-            unique_filename = f"{int(datetime.now().timestamp())}_{filename}"
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
-            file.save(file_path)
-
-            try:
-                df = pd.read_csv(file_path)
-                rows_count = df.shape[0]
-                columns_count = df.shape[1]
+        # 获取用户选择的样本文件名
+        selected_sample = request.form.get('sample_file')
+        
+        # 逻辑分支：是选择样本，还是上传文件？
+        file_path = None
+        
+        # A. 如果用户选了样本
+        if selected_sample and selected_sample != "":
+            source_path = os.path.join(sample_folder, selected_sample)
+            if os.path.exists(source_path):
+                # 生成新的文件名 (避免冲突)
+                unique_filename = f"sample_{int(datetime.now().timestamp())}_{selected_sample}"
+                dest_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
                 
-                # --- 新增：计算 Types ---
-                # 将 pandas 的 dtype (int64, float64, object) 简化为 (int, float, str)
-                type_list = []
-                for dtype in df.dtypes:
-                    d_str = str(dtype)
-                    if 'int' in d_str: type_list.append('int')
-                    elif 'float' in d_str: type_list.append('float')
-                    else: type_list.append('str')
-                # 去重并转字符串，例如 "int, str"
-                types_str = ", ".join(sorted(set(type_list)))
-                # ---------------------
-
-                clean_table_name = "".join([c for c in table_name if c.isalnum() or c == '_'])
-                if not clean_table_name:
-                    clean_table_name = f"ds_{current_user.id}_{int(datetime.now().timestamp())}"
-
-                df.to_sql(clean_table_name, con=db.engine, if_exists='replace', index=False)
-
-                new_dataset = Dataset(
-                    name=name,
-                    table_name=clean_table_name,
-                    description=description,
-                    tags=tags,
-                    rows=rows_count,
-                    columns=columns_count,
-                    types=types_str,  # 保存计算出的 Types
-                    visibility=visibility,
-                    file_path=file_path,
-                    owner_id=current_user.id
-                )
-
-                db.session.add(new_dataset)
-                db.session.commit()
-                flash(f'Dataset saved.', 'success')
-                return redirect(url_for('dataset_list'))
-
-            except Exception as e:
-                flash(f'Error: {str(e)}', 'error')
+                # 关键：把样本文件 COPY 到 uploads 文件夹
+                shutil.copy(source_path, dest_path)
+                file_path = dest_path
+            else:
+                flash('Selected sample file not found.', 'error')
                 return redirect(request.url)
 
-    return render_template('dataset-create.html')
+        # B. 如果用户上传了文件 (且没选样本)
+        elif 'file' in request.files:
+            file = request.files['file']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                unique_filename = f"{int(datetime.now().timestamp())}_{filename}"
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+                file.save(file_path)
+        
+        if not file_path:
+            flash('Please upload a file OR select a sample.', 'error')
+            return redirect(request.url)
+
+        # --- 以下逻辑和之前一样 (解析 & 入库) ---
+        try:
+            df = pd.read_csv(file_path)
+            rows_count = df.shape[0]
+            columns_count = df.shape[1]
+            
+            # 计算 Types
+            type_list = []
+            for dtype in df.dtypes:
+                d_str = str(dtype)
+                if 'int' in d_str: type_list.append('int')
+                elif 'float' in d_str: type_list.append('float')
+                else: type_list.append('str')
+            types_str = ", ".join(sorted(set(type_list)))
+
+            clean_table_name = "".join([c for c in table_name if c.isalnum() or c == '_'])
+            if not clean_table_name:
+                clean_table_name = f"ds_{current_user.id}_{int(datetime.now().timestamp())}"
+
+            df.to_sql(clean_table_name, con=db.engine, if_exists='replace', index=False)
+
+            new_dataset = Dataset(
+                name=name,
+                table_name=clean_table_name,
+                description=description,
+                tags=tags,
+                rows=rows_count,
+                columns=columns_count,
+                types=types_str,
+                visibility=visibility,
+                file_path=file_path,
+                owner_id=current_user.id
+            )
+
+            db.session.add(new_dataset)
+            db.session.commit()
+            flash(f'Dataset saved successfully.', 'success')
+            return redirect(url_for('dataset_list'))
+
+        except Exception as e:
+            flash(f'Error processing file: {str(e)}', 'error')
+            return redirect(request.url)
+
+    # GET 请求：渲染页面，并把 sample_files 传给前端
+    return render_template('dataset-create.html', sample_files=sample_files)
 
 
 # 2. 实现真正的 Dashboard (列表页)
