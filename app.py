@@ -7,7 +7,7 @@ import shutil
 import glob    
 from flask import make_response
 
-from flask import Flask, render_template, redirect, url_for, flash, request
+from flask import Flask, render_template, redirect, url_for, flash, request, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -480,6 +480,27 @@ def dataset_preview(id):
         return redirect(url_for('dataset_list'))
 
     return render_template('dataset-preview.html', dataset=dataset, table_html=table_html)
+
+
+@app.route('/dataset/download/<int:id>')
+@login_required
+def dataset_download(id):
+    dataset = Dataset.query.get_or_404(id)
+
+    
+    try:
+
+        filename = f"{dataset.name.replace(' ', '_')}.csv"
+        
+        return send_file(
+            dataset.file_path, 
+            as_attachment=True, 
+            download_name=filename
+        )
+    except Exception as e:
+        flash(f"Error finding file: {str(e)}", "error")
+        return redirect(url_for('dataset_list'))
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
