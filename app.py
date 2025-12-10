@@ -313,24 +313,37 @@ def dataset_query():
         sql = request.form.get('sql')
         result_format = request.form.get('format') 
 
+        
+  
+        sql_lower = sql.strip().lower()
 
-        if not sql.strip().lower().startswith('select'):
+
+        if not sql_lower.startswith('select'):
             flash('Only SELECT statements are allowed.', 'error')
             return render_template('dataset-query.html')
 
+
+        forbidden_keywords = ['union', 'delete', 'drop', 'update', 'insert', 'alter', 'users', 'sqlite_master']
+        
+        for kw in forbidden_keywords:
+         
+            if kw in sql_lower: 
+                flash(f'Security Alert: The keyword "{kw}" is strictly forbidden.', 'error')
+                return render_template('dataset-query.html')
+    
+
         try:
-           
+    
             query_result = db.session.execute(text(sql))
             
-    
+  
             columns = query_result.keys() 
             rows = query_result.fetchall()
 
-         
             match = re.search(r'from\s+(\w+)', sql, re.IGNORECASE)
             if match:
                 table_found = match.group(1)
-         
+
                 target_ds = Dataset.query.filter_by(table_name=table_found).first()
                 if target_ds:
                     log = QueryLog(
@@ -355,7 +368,7 @@ def dataset_query():
                 return output
             
             else:
-
+  
                 data_list = [dict(zip(columns, row)) for row in rows]
                 results = json.dumps(data_list, indent=4, default=str) 
                 flash(f'Query executed successfully. {len(rows)} rows returned.', 'success')
@@ -365,7 +378,6 @@ def dataset_query():
             flash(f'SQL Error: {error}', 'error')
 
     return render_template('dataset-query.html', results=results)
-
 # --- Feature 1: Auto-EDA Statistics ---
 
 @app.route('/dataset/stats/<int:id>')
